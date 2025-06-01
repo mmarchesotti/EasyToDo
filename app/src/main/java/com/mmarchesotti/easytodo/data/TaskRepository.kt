@@ -1,28 +1,27 @@
 package com.mmarchesotti.easytodo.data
 
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
-class TaskRepository (private val taskDao: TaskDao) {
+class ScheduleRepository (private val scheduleDao: ScheduleDao) {
 
-    val allTasks: Flow<List<Task>> = taskDao.getAllTasksSortedByStartTime()
-
-    fun getTaskById(taskId: Long): Flow<Task?> {
-        return taskDao.getTaskById(taskId)
+    fun getScheduleById(scheduleId: Long): Flow<Schedule?> {
+        return scheduleDao.getScheduleById(scheduleId)
     }
 
-    suspend fun insert(task: Task) {
-        taskDao.insertTask(task)
+    suspend fun insert(schedule: Schedule) {
+        scheduleDao.insertSchedule(schedule)
     }
 
-    suspend fun update(task: Task) {
-        taskDao.updateTask(task)
+    suspend fun update(schedule: Schedule) {
+        scheduleDao.updateSchedule(schedule)
     }
 
-    suspend fun delete(task: Task) {
-        taskDao.deleteTask(task)
+    suspend fun delete(schedule: Schedule) {
+        scheduleDao.deleteSchedule(schedule)
     }
 
-    fun getTasksStartingOnDay(startOfDayMillis: Long, endOfDayMillis: Long): Flow<List<Task>> {
-        return taskDao.getTasksStartingOnDay(startOfDayMillis, endOfDayMillis)
+    fun getScheduleByDate(date : LocalDate): Flow<List<Schedule>> {
+        return scheduleDao.getScheduleByDate(date)
     }
 }

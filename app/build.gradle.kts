@@ -72,4 +72,8 @@ dependencies {
     implementation(libs.androidx.material3.window.size.class1)
 
     implementation(libs.androidx.navigation.compose)
+
+    implementation(libs.androidx.material3.vx)
+    implementation(libs.androidx.material.icons.core)
+    implementation(libs.androidx.material.icons.extended)
 }

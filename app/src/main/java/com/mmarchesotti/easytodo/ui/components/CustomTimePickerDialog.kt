@@ -7,39 +7,40 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTimePickerDialog( // You can name it whatever you like, e.g., MyTimePickerDialog
+fun CustomTimePickerDialog(
     onDismissRequest: () -> Unit,
-    onConfirm: (hour: Int, minute: Int) -> Unit,
-    title: String = "Select Time", // Optional title parameter
-    is24Hour: Boolean = true // Optional: set true for 24-hour format
+    onConfirm: (hour: Int, minute: Int) -> Unit, // This lambda gives you the hour and minute
+    title: String = "Select Time",
+    initialHour: Int = LocalTime.now().hour, // Default to current hour
+    initialMinute: Int = LocalTime.now().minute, // Default to current minute
+    is24Hour: Boolean = false
 ) {
-    val timePickerState = rememberTimePickerState(is24Hour = is24Hour)
+    val timePickerState = rememberTimePickerState(
+        initialHour = initialHour,
+        initialMinute = initialMinute,
+        is24Hour = is24Hour
+    )
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(title) },
         text = {
-            // You might want to wrap TimePicker in a Box with alignment for better presentation
-            // e.g., Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { ... }
-            TimePicker(state = timePickerState)
+            TimePicker(state = timePickerState) // The actual clock UI
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    onConfirm(timePickerState.hour, timePickerState.minute)
-                    onDismissRequest() // Usually dismiss after confirm
+                    onConfirm(timePickerState.hour, timePickerState.minute) // Pass selected time out
+                    onDismissRequest() // Dismiss the dialog
                 }
-            ) {
-                Text("OK")
-            }
+            ) { Text("OK") }
         },
         dismissButton = {
-            TextButton(onClick = onDismissRequest) {
-                Text("Cancel")
-            }
+            TextButton(onClick = onDismissRequest) { Text("Cancel") }
         }
     )
 }

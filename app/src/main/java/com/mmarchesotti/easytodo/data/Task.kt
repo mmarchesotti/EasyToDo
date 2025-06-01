@@ -2,12 +2,15 @@ package com.mmarchesotti.easytodo.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDate
+import java.time.LocalTime
 
-@Entity(tableName = "tasks")
-data class Task(
+@Entity(tableName = "schedules")
+data class Schedule(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
     val name: String,
-    val startTime: Long,
-    val endTime: Long
+    var date: LocalDate,
+    val startTime: LocalTime,
+    val endTime: LocalTime
 )

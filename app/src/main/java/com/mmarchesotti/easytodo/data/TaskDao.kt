@@ -7,25 +7,23 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
-interface TaskDao {
+interface ScheduleDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTask(task: Task): Long
+    suspend fun insertSchedule(schedule: Schedule): Long
 
     @Update
-    suspend fun updateTask(task: Task)
+    suspend fun updateSchedule(schedule: Schedule)
 
     @Delete
-    suspend fun deleteTask(task: Task)
+    suspend fun deleteSchedule(schedule: Schedule)
 
-    @Query("SELECT * FROM tasks WHERE id = :taskId")
-    fun getTaskById(taskId: Long): Flow<Task?>
+    @Query("SELECT * FROM schedules WHERE id = :scheduleId")
+    fun getScheduleById(scheduleId: Long): Flow<Schedule?>
 
-    @Query("SELECT * FROM tasks ORDER BY startTime ASC")
-    fun getAllTasksSortedByStartTime(): Flow<List<Task>>
-
-    @Query("SELECT * FROM tasks WHERE startTime >= :startOfDayMillis AND startTime < :endOfDayMillis ORDER BY startTime ASC")
-    fun getTasksStartingOnDay(startOfDayMillis: Long, endOfDayMillis: Long): Flow<List<Task>>
+    @Query("SELECT * FROM schedules WHERE date = :date ORDER BY startTime ASC")
+    fun getScheduleByDate(date: LocalDate): Flow<List<Schedule>>
 }

@@ -4,37 +4,32 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
-@Database(entities = [Task::class], version = 1, exportSchema = false)
-// entities = lists all the data classes that are database tables.
-// version = database version, important for migrations. Start with 1.
-// exportSchema = set to true if you want to export schema to a folder for version control (good for complex projects).
-//                For simplicity now, 'false' is fine.
+@Database(entities = [Schedule::class], version = 1, exportSchema = false)
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun taskDao(): TaskDao
+    abstract fun scheduleDao(): ScheduleDao
 
     companion object {
-        // @Volatile annotation ensures that the INSTANCE variable is always up-to-date
-        // and the same to all execution threads. Its value will never be cached,
-        // and all writes and reads will be done to and from the main memory.
-        // It means that changes made by one thread to INSTANCE are visible to all other threads immediately.
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
         fun getInstance(context: Context): AppDatabase {
-            // synchronized block ensures that only one thread can execute this block of code at a time,
-            // which is important for creating a singleton database instance.
             synchronized(this) {
                 var instance = INSTANCE
                 if (instance == null) {
                     instance = Room.databaseBuilder(
-                        context.applicationContext, // Use application context
-                        AppDatabase::class.java,    // Your database class
-                        "task_database"       // Name of the database file
+                        context.applicationContext,
+                        AppDatabase::class.java,
+                        "schedule_database"
                     )
-                        // .fallbackToDestructiveMigration() // If you change schema and version, this would recreate db (lose data)
-                        // Proper migrations are preferred for production apps.
+                        // If you changed schema (like adding TypeConverters for existing columns of new types)
+                        // AND you are on version 1, you MUST either:
+                        // 1. Increment version and provide a migration (complex for now)
+                        // 2. Uninstall the app from the device/emulator to clear the old DB.
+                        // .fallbackToDestructiveMigration() // Option for development if you increment version
                         .build()
                     INSTANCE = instance
                 }

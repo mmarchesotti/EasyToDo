@@ -1,4 +1,4 @@
-package com.mmarchesotti.easytodo.ui.dailytasks
+package com.mmarchesotti.easytodo.ui.dailyschedules
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,10 +9,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -26,23 +29,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mmarchesotti.easytodo.ui.mainscreen.TaskCard
-import com.mmarchesotti.easytodo.viewmodel.TaskViewModel
+import com.mmarchesotti.easytodo.ui.mainscreen.ScheduleCard
+import com.mmarchesotti.easytodo.viewmodel.ScheduleViewModel
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DailyTasksScreen(
-    viewModel: TaskViewModel,
+fun DailySchedulesScreen(
+    viewModel: ScheduleViewModel,
     modifier: Modifier = Modifier
 ) {
     val selectedDate by viewModel.selectedDateForDayView.collectAsStateWithLifecycle()
-    val dailyTasks by viewModel.tasksForSelectedDay.collectAsStateWithLifecycle()
+    val dailySchedules by viewModel.schedulesForSelectedDay.collectAsStateWithLifecycle()
 
     var showDatePicker by remember { mutableStateOf(false) }
+
+    val handleDateSelection: (LocalDate) -> Unit = { selectedDate ->
+        viewModel.selectDateForDayView(selectedDate)
+    }
 
     Column(
         modifier = modifier
@@ -53,28 +61,31 @@ fun DailyTasksScreen(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
+            IconButton(onClick = { showDatePicker = true }) {
+                Icon(
+                    imageVector = Icons.Filled.CalendarMonth,
+                    contentDescription = "Change Date"
+                )
+            }
             Text(
-                text = "Tasks for: ${selectedDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))}",
+                text = "${selectedDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))}",
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.weight(1f)
             )
-            Button(onClick = { showDatePicker = true }) {
-                Text("Change Date")
-            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (dailyTasks.isEmpty()) {
+        if (dailySchedules.isEmpty()) {
             Text(
-                text = "No tasks scheduled for this day.",
+                text = "No schedules for this day.",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(dailyTasks) { task ->
-                    TaskCard(task = task)
+                items(dailySchedules) { schedule ->
+                    ScheduleCard(schedule = schedule)
                 }
             }
         }
@@ -89,11 +100,12 @@ fun DailyTasksScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showDatePicker = false
+                        showDatePicker = false // Dismiss the dialog
                         datePickerState.selectedDateMillis?.let { millis ->
-                            viewModel.selectDateForDayView(
-                                Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
-                            )
+                            val pickedLocalDate = Instant.ofEpochMilli(millis)
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDate()
+                            handleDateSelection(pickedLocalDate)
                         }
                     }
                 ) { Text("OK") }
